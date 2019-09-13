@@ -3,11 +3,9 @@ import { squareGrid } from '@turf/turf';
 import getColor from './gradient';
 
 export default function addGrid(map, upperRight, bottomLeft, cellSide) {
-  const bbox = [...upperRight, ...bottomLeft];
+  const bbox = [...Object.values(upperRight), ...Object.values(bottomLeft)];
   const options = { units: 'miles' };
-
   const sg = squareGrid(bbox, cellSide, options);
-  console.log(map.addLayer);
 
   map.addSource("grid", {
     "type": "geojson",

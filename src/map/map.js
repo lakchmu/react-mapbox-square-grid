@@ -12,18 +12,19 @@ const Map = ReactMapboxGl({
     'pk.eyJ1IjoibGFrY2htdSIsImEiOiJjazBleXA5dncwN2xsM2ltb2s5ejg4bDhnIn0.dAyHlJt5lrhHfCQjUA-gzQ'
 });
 
-function getPoints(radius) {
-  const upperRight = [omCoords.long + radius*2, omCoords.lat + radius];
-  const bottomLeft = [omCoords.long - radius*2, omCoords.lat - radius];
+function getGridBounds(map) {
+  const indent = 0.0005;
+  const { _ne, _sw } = map.getBounds()
+  const upperRight = { lng: _ne.lng + indent, lat: _ne.lat + indent };
+  const bottomLeft = { lng: _sw.lng - indent, lat: _sw.lat - indent };
 
   return { upperRight, bottomLeft };
 }
 
 function onStyleLoad(map, loadEvent) {
-  const radius = 0.005;
   const cellSide = 0.05;
-  const { upperRight, bottomLeft } = getPoints(radius);
-  
+  const { upperRight, bottomLeft } = getGridBounds(map);
+
   addGrid(map, upperRight, bottomLeft, cellSide);
   addIcon(map, omCoords);
 }
