@@ -7,15 +7,20 @@ export default function addGrid(map, upperRight, bottomLeft, cellSide) {
   const options = { units: 'miles' };
   const sg = squareGrid(bbox, cellSide, options);
 
-  map.addSource("grid", {
-    "type": "geojson",
-    "data": sg
-  });
+  const id = `grid-[${Object.values(upperRight)}]-[${Object.values(bottomLeft)}]`;
+
+  map.addSource(
+    id,
+    {
+      "type": "geojson",
+      "data": sg
+    }
+  );
 
   map.addLayer({
-    "id": "grid",
+    "id": id,
     "type": "fill",
-    "source": "grid",
+    "source": id,
     "paint": {
       'fill-outline-color': '#fff',
       'fill-color': 'transparent',
