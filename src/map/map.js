@@ -14,7 +14,7 @@ const Map = ReactMapboxGl({
 
 function getGridBounds(map) {
   const indent = 0.0005;
-  const { _ne, _sw } = map.getBounds()
+  const { _ne, _sw } = map.getBounds();
   const upperRight = { lng: _ne.lng + indent, lat: _ne.lat + indent };
   const bottomLeft = { lng: _sw.lng - indent, lat: _sw.lat - indent };
 
@@ -27,6 +27,16 @@ function onStyleLoad(map, loadEvent) {
 
   addGrid(map, upperRight, bottomLeft, cellSide);
   addIcon(map, omCoords);
+
+  map.on('zoom', (event) => {
+    console.log('Moveend zoom');
+    console.log(event);
+  });
+
+  map.on('moveend', (event) => {
+    console.log('Moveend event');
+    console.log(event);
+  });
 }
 
 export default function MyMap(props) {
