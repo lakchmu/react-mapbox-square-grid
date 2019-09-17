@@ -1,10 +1,10 @@
 import PulsingDot from './pulsingDot';
 
-export default function addIcon(map, coords) {
-  map.addImage('pulsing-dot', new PulsingDot(map), { pixelRatio: 2 });
+export default function addIcon(map, coords, index) {
+  map.addImage(`pulsing-dot-${index}`, new PulsingDot(map), { pixelRatio: 2 });
   
   map.addLayer({
-    "id": "points",
+    "id": `${index}`,
     "type": "symbol",
       "source": {
         "type": "geojson",
@@ -21,7 +21,7 @@ export default function addIcon(map, coords) {
           }
         },
         "layout": {
-        "icon-image": "pulsing-dot"
+        "icon-image": `pulsing-dot-${index}`
       }
     }
   );

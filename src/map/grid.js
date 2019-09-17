@@ -52,4 +52,6 @@ export default function addGrid(map, upperRight, bottomLeft, cellSide) {
   //     }
   //   });
   // });
+
+  return sg;
 }

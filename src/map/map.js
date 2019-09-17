@@ -2,7 +2,9 @@ import React from 'react';
 import ReactMapboxGl from 'react-mapbox-gl';
 
 import addGrid from './grid';
-import addIcon from './icon';
+import addHeatmap from './ heatmap';
+
+import points from '../statics/mock_points.json';
 
 const omCoords = { long: 73.36859, lat: 54.99244 }; // Omsk Coordinates
 const zoom = 14;
@@ -25,8 +27,8 @@ function onStyleLoad(map, loadEvent) {
   const cellSide = 0.05;
   const { upperRight, bottomLeft } = getGridBounds(map);
 
-  addGrid(map, upperRight, bottomLeft, cellSide);
-  addIcon(map, omCoords);
+  const squareGrid = addGrid(map, upperRight, bottomLeft, cellSide);
+  addHeatmap(map, squareGrid, points);
 
   map.on('zoom', (event) => {
     console.log('Moveend zoom');

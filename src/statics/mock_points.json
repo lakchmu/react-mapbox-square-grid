@@ -1,0 +1,67 @@
+[
+  {
+    "type": "Point", 
+    "coordinates": { "lat": 54.990347, "long": 73.369424 }
+  },
+  {
+    "type": "Point", 
+    "coordinates": { "lat": 54.991560, "long": 73.372761 }
+  },
+  {
+    "type": "Point", 
+    "coordinates": { "lat": 54.991665, "long": 73.363835 }
+  },
+  {
+    "type": "Point", 
+    "coordinates": { "lat": 54.990105, "long": 73.366925 }
+  },
+  {
+    "type": "Point", 
+    "coordinates": { "lat": 54.989896, "long": 73.367225 }
+  },
+  {
+    "type": "Point", 
+    "coordinates": { "lat": 54.990253, "long": 73.367450 }
+  },
+  {
+    "type": "Point", 
+    "coordinates": { "lat": 54.989336, "long": 73.373608 }
+  },
+  {
+    "type": "Point", 
+    "coordinates": { "lat": 54.989311, "long": 73.373544 }
+  },
+  {
+    "type": "Point", 
+    "coordinates": { "lat": 54.988375, "long": 73.374166 }
+  },
+  {
+    "type": "Point", 
+    "coordinates": { "lat": 54.989403, "long": 73.373622 }
+  },
+  {
+    "type": "Point", 
+    "coordinates": { "lat": 54.989469, "long": 73.373711 }
+  },
+  {
+    "type": "Point", 
+    "coordinates": { "lat": 54.988127, "long": 73.374134 }
+  },
+  {
+    "type": "Point", 
+    "coordinates": { "lat": 54.989361, "long": 73.373763 }
+  },
+  {
+    "type": "Point", 
+    "coordinates": { "lat": 54.989395, "long": 73.373629 }
+  },
+  {
+    "type": "Point", 
+    "coordinates": { "lat": 54.984988, "long": 73.375028 }
+  },
+  {
+    "type": "Point", 
+    "coordinates": { "lat": 54.991648, "long": 73.372641 }
+  }
+  
+]
