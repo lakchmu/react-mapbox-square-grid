@@ -3,6 +3,7 @@ import addIcon from './icon';
 
 const heatMapSquares = {};
 let indexOfSquareWithMostPoints = null;
+let squareGrid = null;
 let origin = null;
 let cellWidth = null;
 let cellHeight = null;
@@ -41,17 +42,17 @@ function addSquareToMap(map, index, square) {
   map.addLayer(getJsonLayer(index, coordinates, fillColor));
 }
 
-function addToHeatMapSquares(indexSquare) {
-  heatMapSquares[indexSquare] = (Object.hasOwnProperty.call(heatMapSquares, indexSquare))
-    ? heatMapSquares[indexSquare] + 1
+function addToHeatMapSquares(squareIndex) {
+  heatMapSquares[squareIndex] = (Object.hasOwnProperty.call(heatMapSquares, squareIndex))
+    ? heatMapSquares[squareIndex] + 1
     : 1;
   
-  if (indexOfSquareWithMostPoints === null || heatMapSquares[indexSquare] > heatMapSquares[indexOfSquareWithMostPoints]) {
-    indexOfSquareWithMostPoints = indexSquare;
+  if (indexOfSquareWithMostPoints === null || heatMapSquares[squareIndex] > heatMapSquares[indexOfSquareWithMostPoints]) {
+    indexOfSquareWithMostPoints = squareIndex;
   }
 }
 
-function getGridHeight(squareGrid) {
+function getGridHeight() {
   const origin = squareGrid.features[0].geometry.coordinates;
   let height = null;
 
@@ -73,23 +74,24 @@ function findSquare(coords) {
   return (row) * gridHeight + col;
 }
 
-function processPoints(map, squareGrid, points) {
+function processPoints(map, points) {
   points.forEach((point, index) => {
-    const indexSquare = findSquare(point.coordinates);
+    const squareIndex = findSquare(point.coordinates);
 
-    addToHeatMapSquares(indexSquare);
+    addToHeatMapSquares(squareIndex);
     addIcon(map, point.coordinates, index);
   });
 }
 
-export default function addHeatmap(map, squareGrid, points) {
+export default function addHeatmap(map, sGrid, points) {
   // first square of grid (upper right)
+  squareGrid = sGrid;
   origin = squareGrid.features[0].geometry.coordinates[0];
   cellWidth = origin[0][0] - origin[2][0];
   cellHeight = origin[0][1] - origin[2][1];
-  gridHeight = getGridHeight(squareGrid);
+  gridHeight = getGridHeight();
 
-  processPoints(map, squareGrid, points);
+  processPoints(map, points);
 
   let squareIndex = null;
   for (squareIndex in heatMapSquares) { //!!!
