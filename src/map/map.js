@@ -1,8 +1,8 @@
 import React from 'react';
 import ReactMapboxGl from 'react-mapbox-gl';
 
-import addGrid from './grid';
-import addHeatmap from './heatmap';
+import addGrid from '../services/grid';
+import addHeatmap from '../services/heatmap';
 
 import points from '../statics/mock_points_1k.json';
 
