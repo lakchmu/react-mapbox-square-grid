@@ -4,7 +4,7 @@ import ReactMapboxGl from 'react-mapbox-gl';
 import addGrid from './grid';
 import addHeatmap from './heatmap';
 
-import points from '../statics/mock_points.json';
+import points from '../statics/mock_points_1k.json';
 
 const omCoords = { long: 73.36859, lat: 54.99244 }; // Omsk Coordinates
 const zoom = 14;

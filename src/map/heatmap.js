@@ -1,62 +1,26 @@
-import { getColor2 } from './gradient';
-import addIcon from './icon';
+let options;
 
-const heatMapSquares = {};
-let indexOfSquareWithMostPoints = null;
-let squareGrid = null;
-let origin = null;
-let cellWidth = null;
-let cellHeight = null;
-let gridHeight = null;
+function initOption({ map, squareGrid }) {
+  const { coordinates } = squareGrid.features[0].geometry;
 
-function getJsonLayer(id, coordinates, fillColor) {
-  const fillOpacity = .8;
-  const fillOutlineColor= '#fff';
-
-  return {
-    'id': `${id}`,
-    'type': 'fill',
-    'source': {
-      'type': 'geojson',
-      'data': {
-        'type': 'Feature',
-        'geometry': {
-          'type': 'Polygon',
-          'coordinates': coordinates
-        }
-      }
-    },
-    'layout': {},
-    'paint': {
-      'fill-outline-color': fillOutlineColor,
-      'fill-color': fillColor,
-      'fill-opacity': fillOpacity
-    }
+  options = {
+    map: map,
+    squareGrid: squareGrid,
+    origin: coordinates[0], // first square of grid (upper right)
+    cellWidth: coordinates[0][0][0] - coordinates[0][2][0],
+    cellHeight: coordinates[0][0][1] - coordinates[0][2][1],
+    gridHeight: getGridHeight(squareGrid),
+    heatMapSquares: {},
+    indexOfSquareWithMostPoints: null,
   }
 }
 
-function addSquareToMap(map, index, square) {
-  const { coordinates } = square.geometry;
-  const fillColor = getColor2(heatMapSquares[indexOfSquareWithMostPoints], heatMapSquares[index]);
-
-  map.addLayer(getJsonLayer(index, coordinates, fillColor));
-}
-
-function addToHeatMapSquares(squareIndex) {
-  heatMapSquares[squareIndex] = (Object.hasOwnProperty.call(heatMapSquares, squareIndex))
-    ? heatMapSquares[squareIndex] + 1
-    : 1;
-  
-  if (indexOfSquareWithMostPoints === null || heatMapSquares[squareIndex] > heatMapSquares[indexOfSquareWithMostPoints]) {
-    indexOfSquareWithMostPoints = squareIndex;
-  }
-}
-
-function getGridHeight() {
-  const origin = squareGrid.features[0].geometry.coordinates;
+function getGridHeight(squareGrid) {
+  const { features } = squareGrid;
+  const origin = features[0].geometry.coordinates;
   let height = null;
 
-  squareGrid.features.find((feature, index) => {
+  features.find((feature, index) => {
     const coords = feature.geometry.coordinates;
     height = index;
 
@@ -66,7 +30,22 @@ function getGridHeight() {
   return height;
 }
 
+function addToHeatMapSquares(squareIndex) {
+  const { heatMapSquares } = options;
+  let { indexOfSquareWithMostPoints: index } = options; //!!!
+
+  heatMapSquares[squareIndex] = (Object.hasOwnProperty.call(heatMapSquares, squareIndex))
+    ? heatMapSquares[squareIndex] + 1
+    : 1;
+
+  index = (index === null ||
+    heatMapSquares[squareIndex] > heatMapSquares[index])
+    ? squareIndex
+    : index;
+}
+
 function findSquare(coords) {
+  const { cellWidth, cellHeight, gridHeight, origin } = options;
   const row = Math.floor(Math.abs(origin[0][0] - coords.long) / cellWidth);
   const col = Math.floor(Math.abs(origin[0][1] - coords.lat) / cellHeight);
 
@@ -74,38 +53,91 @@ function findSquare(coords) {
   return (row) * gridHeight + col;
 }
 
-function processPoints(map, points) {
-  points.forEach((point, index) => {
-    const squareIndex = findSquare(point.coordinates);
+function checkPoint(point) {
+  const { origin } = options;
+  const { features } = options.squareGrid;
+  const lastIndex = features.length - 1;
+  const lastSquare = features[lastIndex].geometry.coordinates[0];
 
-    addToHeatMapSquares(squareIndex);
-    addIcon(map, point.coordinates, index);
+  return point.coordinates.long > lastSquare[2][0] &&
+    point.coordinates.lat > lastSquare[2][1] &&
+    point.coordinates.long < origin[0][0] &&
+    point.coordinates.lat < origin[0][1];
+}
+
+function processPoints(points) {
+  let pointsNumber = 0;
+
+  points.forEach((point) => {
+    if (checkPoint(point)) {
+      const squareIndex = findSquare(point.coordinates);
+
+      addToHeatMapSquares(squareIndex);
+      pointsNumber += 1;
+    }
+  });
+
+  return pointsNumber;
+}
+
+function getHeatMapJson() {
+  const { squareGrid, heatMapSquares } = options;
+  const heatMapJson = {
+    "type": "FeatureCollection",
+    "features": []
+  };
+  let key = null;
+
+  for (key in heatMapSquares) {
+    const length = heatMapJson["features"].push(squareGrid.features[key]);
+    heatMapJson["features"][length - 1]["properties"] = { "points": heatMapSquares[key] }
+  }
+
+  return heatMapJson;
+}
+
+function addHeatmapLayer(geojson) {
+  const { map } = options;
+  map.addSource(
+    "test",
+    {
+      "type": "geojson",
+      "data": geojson
+    }
+  );
+
+  map.addLayer({
+    "id": "test",
+    "type": "fill",
+    "source": "test",
+    'paint': {
+      'fill-color': [
+        'interpolate',
+        ['linear'],
+        ['get', 'points'],
+        0, '#FFDDE1',
+        4, '#EE9FAA',
+      ],
+      'fill-opacity': .75
+    },
+    "filter": ["==", "$type", "Polygon"]
   });
 }
 
-export default function addHeatmap(map, sGrid, points) {
-  // first square of grid (upper right)
-  squareGrid = sGrid;
-  origin = squareGrid.features[0].geometry.coordinates[0];
-  cellWidth = origin[0][0] - origin[2][0];
-  cellHeight = origin[0][1] - origin[2][1];
-  gridHeight = getGridHeight();
+function onClick(event) {
+  const { heatMapSquares } = options;
+  const { lat, lng: long } = event.lngLat;
+  const squareIndex = findSquare({ lat, long });
+  const countOfPoints = heatMapSquares[squareIndex] || 0;
 
-  processPoints(map, points);
+  console.log(squareIndex);
+  console.log(countOfPoints);
+}
 
-  let squareIndex = null;
-  for (squareIndex in heatMapSquares) { //!!!
-    if (Object.hasOwnProperty.call(heatMapSquares, squareIndex)) {
-      addSquareToMap(map, squareIndex, squareGrid.features[squareIndex]);
-    }
-  }
+export default function addHeatmap(map, squareGrid, points) {
+  initOption({ map, squareGrid });
+  processPoints(points);
+  addHeatmapLayer(getHeatMapJson());
 
-  map.on('click', (event) => {
-    const { lat, lng: long } = event.lngLat
-    const squareIndex = findSquare({ lat, long });
-    const countOfPoints = heatMapSquares[squareIndex] || 0;
-
-    console.log(squareIndex);
-    console.log(countOfPoints);
-  });
+  map.on('click', onClick);
 }
