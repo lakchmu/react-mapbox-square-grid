@@ -1,18 +1,17 @@
-let options;
+const options = {};
 
 function initOption({ map, squareGrid }) {
   const { coordinates } = squareGrid.features[0].geometry;
 
-  options = {
-    map: map,
-    squareGrid: squareGrid,
-    origin: coordinates[0], // first square of grid (upper right)
-    cellWidth: coordinates[0][0][0] - coordinates[0][2][0],
-    cellHeight: coordinates[0][0][1] - coordinates[0][2][1],
-    gridHeight: getGridHeight(squareGrid),
-    heatMapSquares: {},
-    indexOfSquareWithMostPoints: null,
-  }
+  options['map'] = map;
+  options['squareGrid'] = squareGrid
+  options['origin'] = coordinates[0] // first square of grid (upper right)
+  options['cellWidth'] = coordinates[0][0][0] - coordinates[0][2][0]
+  options['cellHeight'] = coordinates[0][0][1] - coordinates[0][2][1]
+  options['gridHeight'] = getGridHeight(squareGrid)
+  options['heatMapSquares'] = {}
+
+  return options;
 }
 
 function getGridHeight(squareGrid) {
@@ -32,16 +31,9 @@ function getGridHeight(squareGrid) {
 
 function addToHeatMapSquares(squareIndex) {
   const { heatMapSquares } = options;
-  let { indexOfSquareWithMostPoints: index } = options; //!!!
-
   heatMapSquares[squareIndex] = (Object.hasOwnProperty.call(heatMapSquares, squareIndex))
     ? heatMapSquares[squareIndex] + 1
     : 1;
-
-  index = (index === null ||
-    heatMapSquares[squareIndex] > heatMapSquares[index])
-    ? squareIndex
-    : index;
 }
 
 function findSquare(coords) {
@@ -99,7 +91,7 @@ function getHeatMapJson() {
 function addHeatmapLayer(geojson) {
   const { map } = options;
   map.addSource(
-    "test",
+    "heatmap",
     {
       "type": "geojson",
       "data": geojson
@@ -107,9 +99,9 @@ function addHeatmapLayer(geojson) {
   );
 
   map.addLayer({
-    "id": "test",
+    "id": "heatmap",
     "type": "fill",
-    "source": "test",
+    "source": "heatmap",
     'paint': {
       'fill-color': [
         'interpolate',
@@ -134,10 +126,29 @@ function onClick(event) {
   console.log(countOfPoints);
 }
 
+function addEventsListeners() {
+  const { map } = options;
+
+  map.on('click', onClick);
+}
+
 export default function addHeatmap(map, squareGrid, points) {
   initOption({ map, squareGrid });
   processPoints(points);
   addHeatmapLayer(getHeatMapJson());
+  addEventsListeners();
+}
 
-  map.on('click', onClick);
+export {
+  options,
+  initOption,
+  getGridHeight,
+  addToHeatMapSquares,
+  findSquare,
+  checkPoint,
+  processPoints,
+  getHeatMapJson,
+  addHeatmapLayer,
+  addEventsListeners,
+  onClick,
 }
