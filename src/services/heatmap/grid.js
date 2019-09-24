@@ -1,13 +1,16 @@
 import { squareGrid } from '@turf/turf';
 
-import getColor from './gradient';
-
-export default function addGrid(map, upperRight, bottomLeft, cellSide) {
-  const bbox = [...Object.values(upperRight), ...Object.values(bottomLeft)];
+export default function addGrid(map, bbox, cellSide) {
   const options = { units: 'miles' };
-  const sg = squareGrid(bbox, cellSide, options);
+  const id = `grid`;
 
-  const id = `grid-[${Object.values(upperRight)}]-[${Object.values(bottomLeft)}]`;
+  const sg = squareGrid(bbox, cellSide, options);
+  const source = map.getSource(id);
+
+  if (source) {
+    source.setData(sg);
+    return sg;
+  }
 
   map.addSource(
     id,

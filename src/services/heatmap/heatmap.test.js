@@ -9,7 +9,7 @@ const {
   addHeatmapLayer,
   addEventsListeners,
   onClick,
-} = require('../services/heatmap');
+} = require('./heatmap');
 
 const squareGrid = require('./__mocks__/squareGrid.json');
 const point = require('./__mocks__/point.json');
@@ -82,6 +82,7 @@ describe('Heatmap testing', () => {
 
   test('Test 7', async () => {
     const map = {
+      getSource: jest.fn(),
       addSource: jest.fn(),
       addLayer: jest.fn()
     }

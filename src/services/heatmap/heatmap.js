@@ -1,15 +1,16 @@
 const options = {};
 
-function initOption({ map, squareGrid }) {
+function initOption({ map, squareGrid, points }) {
   const { coordinates } = squareGrid.features[0].geometry;
 
   options['map'] = map;
-  options['squareGrid'] = squareGrid
-  options['origin'] = coordinates[0] // first square of grid (upper right)
-  options['cellWidth'] = coordinates[0][0][0] - coordinates[0][2][0]
-  options['cellHeight'] = coordinates[0][0][1] - coordinates[0][2][1]
-  options['gridHeight'] = getGridHeight(squareGrid)
-  options['heatMapSquares'] = {}
+  options['squareGrid'] = squareGrid;
+  options['origin'] = coordinates[0]; // first square of grid (upper right)
+  options['cellWidth'] = coordinates[0][0][0] - coordinates[0][2][0];
+  options['cellHeight'] = coordinates[0][0][1] - coordinates[0][2][1];
+  options['gridHeight'] = getGridHeight(squareGrid);
+  options['heatMapSquares'] = {};
+  options['points'] = points;
 
   return options;
 }
@@ -90,6 +91,13 @@ function getHeatMapJson() {
 
 function addHeatmapLayer(geojson) {
   const { map } = options;
+  const source = map.getSource('heatmap');
+
+  if (source) {
+    source.setData(geojson);
+    return;
+  }
+
   map.addSource(
     "heatmap",
     {
@@ -132,11 +140,15 @@ function addEventsListeners() {
   map.on('click', onClick);
 }
 
-export default function addHeatmap(map, squareGrid, points) {
-  initOption({ map, squareGrid });
+function createHeatmap(map, squareGrid, points) {
+  initOption({ map, squareGrid, points });
   processPoints(points);
   addHeatmapLayer(getHeatMapJson());
-  addEventsListeners();
+}
+
+export default function addHeatmap(map, squareGrid, points) {
+  createHeatmap(map, squareGrid, points);
+  addEventsListeners(map);
 }
 
 export {
